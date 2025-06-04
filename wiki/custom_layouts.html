@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customizing Page Layouts - Bookbinder JS Wiki</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Customizing Page Layouts</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#overview">Overview</a></li>
+            <li><a href="index.html#project-structure">Project Structure</a></li>
+            <li><a href="user_input.html">User Input</a></li>
+            <li><a href="output_generation.html">Output & PDF Gen</a></li>
+            <li><a href="custom_layouts.html">Custom Layouts</a></li>
+        </ul>
+    </nav>
+    <main>
+        <section id="introduction">
+            <h2>Introduction</h2>
+            <p>This page focuses on how page layouts (the arrangement of individual pages onto larger sheets for printing) are defined and rendered within Bookbinder JS. It also provides guidance on which parts of the code would need modification if you wanted to implement custom layout schemes, such as different ways pages are embedded or arranged on a signature.</p>
+        </section>
+
+        <section id="ui-representation">
+            <h2>UI Representation of Layout (<code>src/html/page_layout.html</code>)</h2>
+            <p>The user interface elements that allow users to choose and configure page layouts are likely defined in an HTML partial, such as <code>src/html/page_layout.html</code> (the exact filename might vary, e.g., <code>layout_options.html</code>). This file would contain the form inputs (dropdowns, radio buttons, number fields for margins, etc.) that users interact with to select their desired imposition style (e.g., booklet, N-up), paper orientation, margins, and other layout-specific settings.</p>
+            <p>Modifications to this HTML file would primarily change the user-facing options. For example, to introduce a new custom layout, you might add a new option to a dropdown menu here. While these changes don't alter the core layout logic directly, they provide the necessary user input that your custom layout functions would then use.</p>
+        </section>
+
+        <section id="core-layout-logic">
+            <h2>Core Layout Logic (<code>src/booklet.js</code> and <code>src/utils/layout.js</code>)</h2>
+            <p>As mentioned previously, the <a href="output_generation.html#book-class"><code>Booklet</code> class</a> (from <code>src/booklet.js</code>) and its <a href="output_generation.html#pdf-generation"><code>createoutputfiles()</code> method</a> are central to generating the final arrangement of pages. This method orchestrates the process of taking user inputs and the source PDF to produce the imposed output.</p>
+            <p>The actual calculations for determining where each page from the source PDF is placed on the output sheets (signatures) are performed by functions within <code>src/utils/layout.js</code>. This file contains the specific algorithms for different layout types (e.g., booklet, 2-up, 4-up, etc.). These functions would calculate the precise X/Y coordinates, rotation, and scaling for each page based on the selected layout options and the <code>Booklet</code> object's configuration (paper size, margins, source PDF page size, etc.).</p>
+            <p>The <a href="output_generation.html#pdf-generation"><code>createoutputfiles()</code> method</a> in <a href="output_generation.html#book-class"><code>src/booklet.js</code></a> would then call the appropriate functions from <code>src/utils/layout.js</code> based on the user's selected layout type and use the returned information to draw the pages onto the new PDF document using a library like PDF-Lib.</p>
+        </section>
+
+        <section id="customization-guidance">
+            <h2>Guidance for Customization</h2>
+            <p>Adding a new custom page layout is an advanced modification. Here's a general approach:</p>
+            <ol>
+                <li><strong>Define UI Elements:</strong> If your new layout requires specific user-configurable options, add the necessary form elements to the relevant HTML partial (e.g., <code>src/html/page_layout.html</code>).</li>
+                <li><strong>Handle New UI Inputs:</strong> Update <a href="user_input.html#event-listeners"><code>src/main.js</code></a> to correctly read and process any new UI elements. Ensure these new options are passed to or stored in the <code>Book</code> object so the layout functions can access them. This typically involves updating <a href="user_input.html#handle-input-change-func"><code>handleInputChange</code></a> or similar functions.</li>
+                <li><strong>Implement Core Layout Logic:</strong>
+                    <ul>
+                        <li>In <code>src/utils/layout.js</code>, create new functions or extend existing ones to perform the calculations for your custom layout. These functions will need to determine the position, rotation, and possibly scaling for each page of the source PDF onto the output sheets.</li>
+                        <li>This logic will depend heavily on the specifics of your custom layout (e.g., how many pages per sheet, their order, orientation, any specific folding patterns).</li>
+                    </ul>
+                </li>
+                <li><strong>Integrate into PDF Generation:</strong>
+                    <ul>
+                        <li>Modify the <code>createoutputfiles()</code> method in <code>src/booklet.js</code> (or functions it calls). Add conditional logic to check if your new custom layout type has been selected.</li>
+                        <li>If selected, ensure it calls your new layout calculation functions from <code>src/utils/layout.js</code> and uses the returned data to draw the pages accordingly.</li>
+                    </ul>
+                </li>
+            </ol>
+            <p><strong>Important:</strong> This process requires a good understanding of the existing layout calculations, how PDF coordinates work, and the capabilities of the PDF generation library (PDF-Lib) being used. Thorough testing with various PDF inputs and settings is crucial.</p>
+        </section>
+
+        <section id="conceptual-example">
+            <h2>Simplified Example/Pseudocode (Conceptual)</h2>
+            <details>
+              <summary>View code example: Conceptual custom layout function</summary>
+            <pre><code class="language-javascript">// Conceptual: How a new layout function might be added to src/utils/layout.js
+function calculateMyCustomLayout(bookConfig, sourcePageNum, totalSourcePages) {
+    // bookConfig contains all settings: paper size, margins, custom options...
+    // sourcePageNum is the current page from the input PDF being placed.
+
+    let x = 0, y = 0, rotation = 0, scale = 1;
+    // Example: A simple 2-up side-by-side, centered
+    const sheetWidth = bookConfig.paperWidth;
+    const sheetHeight = bookConfig.paperHeight;
+    const contentWidth = bookConfig.sourcePageWidth * 2; // Assuming two pages fit
+
+    if (sourcePageNum % 2 === 1) { // First page of a pair
+        x = (sheetWidth - contentWidth) / 2;
+    } else { // Second page of a pair
+        x = (sheetWidth - contentWidth) / 2 + bookConfig.sourcePageWidth;
+    }
+    y = (sheetHeight - bookConfig.sourcePageHeight) / 2;
+
+    return { x, y, rotation, scale, sheetNumber: Math.floor((sourcePageNum -1) / 2) };
+}
+
+// --- In src/booklet.js, within createoutputfiles() or a similar method ---
+
+// Assuming 'bookData' holds the current book's configuration and loaded PDF
+
+// if (bookData.layoutOptions.type === 'my_custom_layout') {
+//     for (let i = 0; i < bookData.pdfDoc.getPageCount(); i++) {
+//         const sourcePage = bookData.pdfDoc.getPage(i);
+//         const { width: sourcePageWidth, height: sourcePageHeight } = sourcePage.getSize();
+//
+//         // Augment bookData with source page dimensions for the layout function
+//         const layoutConfig = {
+//             ...bookData.layoutOptions,
+//             sourcePageWidth,
+//             sourcePageHeight
+//         };
+//
+//         const targetInfo = layout.calculateMyCustomLayout(layoutConfig, i + 1, bookData.pdfDoc.getPageCount());
+//
+//         // Get or create the target sheet (PDFPage object from PDF-Lib)
+//         let outputSheet = getTargetSheet(targetInfo.sheetNumber);
+//
+//         // Embed the source page onto the output sheet using targetInfo
+//         outputSheet.drawPage(sourcePage, {
+//             x: targetInfo.x,
+//             y: targetInfo.y,
+//             rotate: degrees(targetInfo.rotation), // Assuming rotation is in degrees
+//             xScale: targetInfo.scale,
+//             yScale: targetInfo.scale,
+//         });
+//     }
+// }
+</code></pre>
+            </details>
+        </section>
+    </main>
+</body>
+</html>

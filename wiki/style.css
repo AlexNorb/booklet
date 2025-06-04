@@ -1,0 +1,119 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    line-height: 1.6; /* Improve readability */
+}
+
+header {
+    background-color: #f0f0f0;
+    padding: 1em;
+    text-align: center;
+    border-bottom: 1px solid #ccc; /* Add a subtle border */
+}
+
+nav {
+    background-color: #e0e0e0;
+    padding: 1em;
+    border-bottom: 1px solid #c0c0c0; /* Add a subtle border */
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0; /* Remove default margin */
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 15px; /* Slightly increase spacing */
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #333;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+    color: #000;
+}
+
+main {
+    padding: 1.5em; /* Increase padding */
+}
+
+section {
+    margin-bottom: 2em; /* Add space between sections */
+}
+
+h1, h2, h3 {
+    color: #333;
+}
+
+h2 {
+    border-bottom: 1px solid #eee; /* Underline section titles */
+    padding-bottom: 0.3em;
+    margin-top: 0; /* Adjust default margin */
+}
+
+h3 {
+    margin-top: 1.5em; /* Space above subheadings */
+}
+
+code {
+    background-color: #f4f4f4;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+pre {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    padding: 1em; /* Increase padding */
+    overflow-x: auto; /* For horizontal scrolling of long code lines */
+    border-radius: 4px; /* Add rounded corners */
+}
+
+pre code {
+    background-color: transparent; /* Avoid double background for code inside pre */
+    padding: 0;
+    border: none;
+}
+
+details {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5em 0.5em 0; /* Adjust padding */
+  margin-bottom: 1em;
+  background-color: #fdfdfd; /* Slight background tint */
+}
+
+summary {
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0.5em;
+  margin: -0.5em -0.5em 0; /* Adjust to align with details padding */
+  background-color: #f0f0f0; /* Background for summary */
+  border-bottom: 1px solid #ccc; /* Separator for summary */
+  border-radius: 4px 4px 0 0; /* Rounded corners for top */
+}
+
+details[open] summary {
+  border-bottom: 1px solid #ccc;
+}
+
+details > pre {
+  margin-top: 0.5em; /* Space between summary and code block */
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 2em 0;
+}
+
+/* Basic responsiveness: ensure images/code blocks don't overflow */
+img, pre {
+    max-width: 100%;
+}

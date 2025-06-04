@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookbinder JS Wiki</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Bookbinder JS Wiki</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#overview">Overview</a></li>
+            <li><a href="index.html#project-structure">Project Structure</a></li>
+            <li><a href="user_input.html">User Input</a></li>
+            <li><a href="output_generation.html">Output & PDF Gen</a></li>
+            <li><a href="custom_layouts.html">Custom Layouts</a></li>
+        </ul>
+    </nav>
+    <main>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>Bookbinder JS is a JavaScript-based web application designed to format PDF files for bookbinding. This process, often called imposition, involves arranging pages onto larger sheets that, when printed and folded, result in a correctly ordered book or booklet. The tool aims to simplify this task for users needing to prepare documents for physical binding.</p>
+            <p>It is a rewrite of the original Bookbinder tool, now utilizing the PDF-Lib JavaScript library for its backend operations. You can find the project on <a href="https://github.com/momijizukamori/bookbinder-js">GitHub</a>.</p>
+        </section>
+        <hr>
+        <section id="project-structure">
+            <h2>Project Structure</h2>
+            <p>The Bookbinder JS project is organized into several key folders and files:</p>
+            <ul>
+                <li><strong><code>src/</code>:</strong> This directory contains the core of the application. It includes the main JavaScript source code (<a href="user_input.html#event-listeners"><code>main.js</code></a>, <a href="output_generation.html#book-class"><code>booklet.js</code></a>, etc.), HTML partials that make up the user interface, and various utility functions.</li>
+                <li><strong><code>public/</code>:</strong> This folder holds static assets that are served directly. This includes images, global CSS styles (note: the wiki has its own separate CSS), and an older version of the application.</li>
+                <li><strong><code>docs/</code>:</strong> Here you'll find project documentation, examples of generated PDFs, and images that help illustrate the project's features and how to use them.</li>
+                <li><strong><code>wiki/</code>:</strong> This folder contains the project wiki, including this page, providing a more detailed guide to the project.</li>
+                <li><strong><code>pdf-test/</code>:</strong> This directory is dedicated to testing PDF generation. It includes various files and scripts used to ensure the PDF output is correct.</li>
+            </ul>
+            <p>Key files in the project root include:</p>
+            <ul>
+                <li><strong><code>index.html</code>:</strong> The main HTML file that serves as the entry point for the web application.</li>
+                <li><strong><code>package.json</code>:</strong> This file contains project metadata, such as its name, version, and dependencies (the libraries it uses). It also defines scripts for building, testing, and running the application.</li>
+                <li><strong><code>vite.config.js</code>:</strong> This is the configuration file for Vite, the build tool used by Bookbinder JS. It specifies how the project should be built and optimized for development and production.</li>
+            </ul>
+        </section>
+    </main>
+</body>
+</html>

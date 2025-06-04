@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Input Handling - Bookbinder JS Wiki</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Understanding User Input</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#overview">Overview</a></li>
+            <li><a href="index.html#project-structure">Project Structure</a></li>
+            <li><a href="user_input.html">User Input</a></li>
+            <li><a href="output_generation.html">Output & PDF Gen</a></li>
+            <li><a href="custom_layouts.html">Custom Layouts</a></li>
+        </ul>
+    </nav>
+    <main>
+        <section id="introduction">
+            <h2>Introduction</h2>
+            <p>This page details how Bookbinder JS captures and processes user interactions. Understanding this flow is key to understanding how user choices are translated into the final PDF output.</p>
+        </section>
+
+        <section id="form-structure">
+            <h2>The Form (<code>index.html</code> & HTML Partials)</h2>
+            <p>The main user interface for Bookbinder JS is a large HTML form defined in the root <code>index.html</code> file. This form contains all the input fields, dropdowns, and buttons that users interact with to configure their bookbinding layout.</p>
+            <p>To keep the main <code>index.html</code> manageable and promote reusability, the form is constructed by including various HTML partials from the <code>src/html/</code> directory. These partials represent different sections of the UI, like paper options, layout settings, etc. A custom script handles directives like the one below to load these partials:</p>
+            <pre><code>&lt;!-- Example: How a partial might be indicated in index.html --&gt;
+&lt;load src="src/html/file.html" /&gt;</code></pre>
+            <p><em>(Note: The actual mechanism for including partials is handled by the <code>vite-plugin-html-inject</code> during the build process, configured in <code>vite.config.js</code>, which processes special <code>&lt;load&gt;</code> tags.)</em></p>
+        </section>
+
+        <section id="event-listeners">
+            <h2>Event Listeners (<code>src/main.js</code>)</h2>
+            <p>The JavaScript execution for the application starts in <code>src/main.js</code>. After the HTML document is fully loaded (<code>DOMContentLoaded</code> event), this script attaches event listeners to various form elements. These listeners wait for user actions, such as changing an input value, selecting a file, or clicking a button.</p>
+            <p>Here's a simplified example of how event listeners are set up:</p>
+            <details>
+              <summary>View code example: Event listener setup in src/main.js</summary>
+            <pre><code class="language-javascript">// Simplified example from src/main.js
+// Wait for the DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const book = new Booklet(); // Central object holding book data
+    const bookbinderForm = document.getElementById('bookbinder_form'); // The main form
+
+    // Listener for the file input
+    const fileInput = document.getElementById('input_file');
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            <a href="#handle-file-change-func">handleFileChange(e, book, bookbinderForm)</a>; // Process the selected file
+        });
+    }
+
+    // Listeners for other inputs (text, select, radio, etc.)
+    const inputs = bookbinderForm.querySelectorAll('input:not([type="file"]), select');
+    inputs.forEach((input) => {
+        input.addEventListener('change', () => {
+            <a href="#handle-input-change-func">handleInputChange(book, bookbinderForm)</a>; // Handle general input changes
+        });
+    });
+
+    // ... other listeners for buttons etc. ...
+});</code></pre>
+            </details>
+        </section>
+
+        <section id="handling-input-changes">
+            <h2>Handling Input Changes (<code>src/utils/changeHandlers.js</code>)</h2>
+            <p>User interactions that modify form values are primarily handled by functions in <code>src/utils/changeHandlers.js</code>.</p>
+
+            <h3 id="handle-input-change-func"><code>handleInputChange(book, bookbinderForm)</code></h3>
+            <p>This function is typically called when the value of most form inputs (text fields, dropdowns, checkboxes, etc.) changes. Its main responsibilities are:</p>
+            <ul>
+                <li>Gathering all current form data using <code>new FormData(bookbinderForm)</code>.</li>
+                <li>Calling <a href="user_input.html#managing-form-data"><code>saveForm(formData)</code></a> (from <code>src/utils/formUtils.js</code>) to persist the current settings, likely to the browser's local storage.</li>
+                <li>Updating the central <a href="output_generation.html#book-class"><code>book</code> object</a> with the new configuration values. This object holds the state of the document to be processed.</li>
+                <li>Triggering UI updates, such as re-rendering parts of the form or previews, by calling functions like <a href="output_generation.html#dynamic-ui-updates"><code>updateRenderedForm(bookbinderForm, book)</code></a>.</li>
+            </ul>
+            <details>
+              <summary>View code example: Simplified handleInputChange</summary>
+            <pre><code class="language-javascript">// Simplified concept of handleInputChange
+async function handleInputChange(book, formElement) {
+    const formData = new FormData(formElement);
+    saveForm(formData); // Persist data
+
+    // Update the book object with new values from formData
+    book.setOptionsFromFormData(formData); // Links to book object above
+
+    // Reflect changes in the UI
+    updateRenderedForm(formElement, book); // Links to updateRenderedForm above
+
+    // Potentially re-render a preview if a PDF is loaded
+    if (book.pdfDoc) {
+        // ... logic to re-render preview ...
+    }
+}</code></pre>
+            </details>
+
+            <h3 id="handle-file-change-func"><code>handleFileChange(event, book, bookbinderForm)</code></h3>
+            <p>This function is specifically triggered when a user selects a PDF file using the file input field (<code>&lt;input type="file" id="input_file"&gt;</code>). Its key actions include:</p>
+            <ul>
+                <li>Retrieving the selected file from the event object.</li>
+                <li>Calling <a href="output_generation.html#book-class"><code>book.openpdf(file)</code></a>. This asynchronous method in the <code>Booklet</code> class (likely defined in <code>src/booklet.js</code>) is responsible for reading and processing the PDF file using PDF-Lib.</li>
+                <li>After the PDF is processed, it also triggers UI updates, similar to <code>handleInputChange</code>, to reflect that a file is loaded and its properties (like page count) are known.</li>
+            </ul>
+            <details>
+              <summary>View code example: Simplified handleFileChange</summary>
+            <pre><code class="language-javascript">// Simplified concept of handleFileChange
+async function handleFileChange(event, book, formElement) {
+    const file = event.target.files[0];
+    if (file) {
+        try {
+            await book.openpdf(file); // Process the PDF
+            // Update UI based on the loaded PDF
+            handleInputChange(book, formElement); // Refresh form state and UI
+        } catch (error) {
+            console.error("Error opening PDF:", error);
+            // Display error to user
+        }
+    }
+}</code></pre>
+            </details>
+        </section>
+
+        <section id="managing-form-data">
+            <h2>Managing Form Data (<code>src/utils/formUtils.js</code>)</h2>
+            <p>The <code>src/utils/formUtils.js</code> file contains utilities for managing the form's data persistence. This helps users retain their settings across browser sessions.</p>
+            <ul>
+                <li><strong><code>saveForm(formData)</code>:</strong> This function takes the current <code>FormData</code> object and saves it. It likely iterates over the form data and stores it in the browser's <code>localStorage</code> or <code>sessionStorage</code>.</li>
+                <li><strong><code>loadForm(formElement, book)</code>:</strong> When the application first loads, this function is called to retrieve any previously saved form data from browser storage. It then populates the form fields with these saved values and updates the central <code>book</code> object accordingly.</li>
+            </ul>
+            <p>These utilities ensure that if a user customizes their settings, closes the browser, and then reopens the application, their previous configuration is restored, providing a more user-friendly experience.</p>
+        </section>
+    </main>
+</body>
+</html>
