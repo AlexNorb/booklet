@@ -7,6 +7,9 @@
     "dev": "vite --port 5173",
     "build": "vite build",
     "preview": "vite preview",
+    "astro:dev": "astro dev",
+    "astro:build": "astro build",
+    "astro:preview": "astro preview",
     "test": "vitest --pool=forks",
     "test:unit": "vitest src",
     "test:pdf": "vitest --pool=forks pdf-test ",
@@ -29,6 +32,7 @@
   },
   "dependencies": {
     "@cantoo/pdf-lib": "^1.21.0",
+    "astro": "3.6.4",
     "file-saver": "^2.0.5",
     "jszip": "^3.7.1",
     "vite-plugin-html-inject": "^1.1.2",

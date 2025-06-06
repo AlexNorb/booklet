@@ -1,0 +1,12 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Bookbinder - Astro">
+  {/*
+    The original index.html had: <script type="module" src="/src/main.js"></script>
+    Astro (with Vite) should handle JavaScript files in `src/` correctly.
+    This script will be processed and bundled by Vite.
+  */}
+  <script type="module" src="/src/main.js" slot="after-body"></script>
+</MainLayout>
